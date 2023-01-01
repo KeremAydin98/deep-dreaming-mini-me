@@ -1,6 +1,6 @@
-from tensorflow.keras.applications.inception_v3 import InceptionV3
+from tensorflow.keras.applications.inception_v3 import InceptionV3, preprocess_input
 import tensorflow as tf
-
+import numpy as np
 
 class Dream:
 
@@ -67,5 +67,26 @@ class Dream:
             image = tf.clip_by_value(image, -1, 1)
 
         return loss, image
+
+    def generate_dream(self, image, steps, step_size):
+
+        image = preprocess_input(image)
+        image = tf.convert_to_tensor(image)
+        step_size = tf.convert_to_tensor(step_size)
+        step_size = tf.constant(step_size)
+        steps = tf.constant(steps)
+
+        loss, image = self.perform_gradient_ascent(image, steps, step_size)
+
+        image = 255 * (image + 1.0) / 2
+        image = tf.cast(image, tf.uint8)
+
+        return np.array(image)
+
+
+
+
+
+
 
 
