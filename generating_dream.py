@@ -10,18 +10,36 @@ class Dream:
     image to increase the magnitude of such activations to in turn magnify the patterns.
     """
 
-    def __init__(self, octave_scale, which_mixed_layer):
+    def __init__(self, octave_scale, mixed_layer_names = None):
 
         self.octave_scale = octave_scale
-        self.mixed = which_mixed_layer
-
         self.base_model = InceptionV3(include_top=False, weights='imagenet')
 
-        if self.mixed == 7:
-            layer_name = "mixed7"
-        elif self.mixed == 8:
-            layer_name = "mixed8"
+        if mixed_layer_names is None:
+            layer_names = ["mixed3","mixed5"]
         else:
-            layer_name = "mixed9"
+            layer_names = mixed_layer_names
 
-        self.model = tf.keras.Model(self.base_model.input, self.base_model.get_layer(layer_name)(self.base_model.input))
+        outputs = [self.base_model.get_layer(layer_name)(self.base_model.input) for layer_name in layer_names]
+
+        self.dreamer = tf.keras.Model(self.base_model.input, outputs)
+
+    def _calculate_loss(self, image):
+
+        image_batch = tf.expand_dims(image, 0)
+
+        activations = self.dreamer(image_batch)
+
+        if len(activations) == 1:
+
+            activations = [activations]
+
+        losses = []
+        for activation in activations:
+            loss = tf.math.reduce_mean(activation)
+            losses.append(loss)
+
+        total_loss = tf.math.reduce_sum(losses)
+
+        return total_loss
+
