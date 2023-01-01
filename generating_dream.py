@@ -2,7 +2,8 @@ from tensorflow.keras.applications.inception_v3 import InceptionV3, preprocess_i
 import tensorflow as tf
 import numpy as np
 
-class Dream:
+
+class DreamyImages:
 
     """
     DeepDream is the result of an experiment that aimed to visualize the internal patterns that are learned by
@@ -20,11 +21,14 @@ class Dream:
         else:
             layer_names = mixed_layer_names
 
-        outputs = [self.base_model.get_layer(layer_name)(self.base_model.input) for layer_name in layer_names]
+        outputs = [self.base_model.get_layer(layer_name).output for layer_name in layer_names]
 
         self.dreamer = tf.keras.Model(self.base_model.input, outputs)
 
     def _calculate_loss(self, image):
+        """
+        Calculate the loss between the extracted features and the image
+        """
 
         image_batch = tf.expand_dims(image, 0)
 
@@ -60,7 +64,7 @@ class Dream:
 
             gradient = tape.gradient(loss, image)
 
-            gradient = gradient / (tf.math.reduce_std(image) + 1e-3)
+            gradient = gradient / (tf.math.reduce_std(gradient) + 1e-8)
 
             image = image + gradient * step_size
             # Clips tensor values to a specified min and max.
@@ -69,6 +73,9 @@ class Dream:
         return loss, image
 
     def generate_dream(self, image, steps, step_size):
+        """
+        Generates dreamy images
+        """
 
         image = preprocess_input(image)
         image = tf.convert_to_tensor(image)
