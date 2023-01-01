@@ -1,25 +1,40 @@
 import cv2
-import numpy as np
 from generating_dream import DreamyImages
 import time
 
 start = time.time()
 
-img = cv2.imread("forest.jpg")
-img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-img = np.array(img)
-
-
+video_path = "./Data/giraffes.mp4"
 dreamer = DreamyImages()
-new_img = dreamer.generate_dream(img, 100, 0.01)
+
+cap = cv2.VideoCapture(video_path)
+fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+out = cv2.VideoWriter('Result/output.mp4',fourcc, 20.0, (300,300))
+
+print("Video started!!")
+while(cap.isOpened()):
+
+    ret, frame = cap.read()
+
+    if ret:
+
+        frame = cv2.resize(frame, (300, 300))
+        frame = dreamer.generate_dream(frame, 100, 0.01)
+        print("Frame ended!!")
+        out.write(frame)
+
+    else:
+
+        break
+
+
+cap.release()
+out.release()
+cv2.destroyAllWindows()
 
 end = time.time()
 
 print("Elapsed Time: ",end-start)
 
-# concatenate image Horizontally
-Hori = np.concatenate((img, new_img), axis=1)
 
-cv2.imshow('Default', Hori)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+
