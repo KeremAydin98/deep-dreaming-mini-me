@@ -1,4 +1,4 @@
-from tensorflow.keras.applications.inception_v3 import *
+from tensorflow.keras.applications.inception_v3 import InceptionV3
 import tensorflow as tf
 
 
@@ -42,4 +42,30 @@ class Dream:
         total_loss = tf.math.reduce_sum(losses)
 
         return total_loss
+
+    @tf.function
+    def perform_gradient_ascent(self, image, steps, step_size):
+        """
+        A method to perform gradient ascent
+
+        image = image + d(Loss) / d(Image) * step_size
+        """
+
+        loss = tf.constant(0.0)
+
+        for _ in range(steps):
+            with tf.GradientTape() as tape:
+                tape.watch(image)
+                loss = self._calculate_loss(image)
+
+            gradient = tape.gradient(loss, image)
+
+            gradient = gradient / (tf.math.reduce_std(image) + 1e-3)
+
+            image = image + gradient * step_size
+            # Clips tensor values to a specified min and max.
+            image = tf.clip_by_value(image, -1, 1)
+
+        return loss, image
+
 
