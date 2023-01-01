@@ -10,7 +10,7 @@ img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 img = np.array(img)
 
 
-dreamer = DreamyImages(5)
+dreamer = DreamyImages()
 new_img = dreamer.generate_dream(img, 100, 0.01)
 
 end = time.time()

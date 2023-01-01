@@ -11,9 +11,8 @@ class DreamyImages:
     image to increase the magnitude of such activations to in turn magnify the patterns.
     """
 
-    def __init__(self, octave_scale=1.3, mixed_layer_names = None):
+    def __init__(self, mixed_layer_names = None):
 
-        self.octave_scale = octave_scale
         self.base_model = InceptionV3(include_top=False, weights='imagenet')
 
         if mixed_layer_names is None:
