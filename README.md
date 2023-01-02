@@ -1,4 +1,4 @@
-# generate_dreams
+# deep-dreaming-mini-me
 
 ## Introduction
 
